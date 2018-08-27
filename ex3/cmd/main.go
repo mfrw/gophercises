@@ -29,6 +29,6 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	h := ex3.NewHandler(story)
+	h := ex3.NewHandler(story, nil)
 	log.Fatal(http.ListenAndServe(*port, h))
 }

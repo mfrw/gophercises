@@ -9,6 +9,10 @@ import (
 	"strings"
 )
 
+var (
+	tmpl = template.Must(template.New("").Parse(htmlTemplate))
+)
+
 type Story map[string]Chapter
 
 type Chapter struct {
@@ -21,12 +25,16 @@ type Option struct {
 	Chapter string `json:"arc"`
 }
 
-func NewHandler(s Story) http.Handler {
-	return handler{s}
+func NewHandler(s Story, t *template.Template) http.Handler {
+	if t == nil {
+		t = tmpl
+	}
+	return handler{s, t}
 }
 
 type handler struct {
 	s Story
+	t *template.Template
 }
 
 func (h handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -37,8 +45,7 @@ func (h handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	path = path[1:] // Trime the leading /
 
 	if chapter, ok := h.s[path]; ok {
-		tmpl := template.Must(template.New("").Parse(htmlTemplate))
-		err := tmpl.Execute(w, chapter)
+		err := h.t.Execute(w, chapter)
 		if err != nil {
 			log.Printf("%v", err)
 			http.Error(w, "Something went wrong ..", http.StatusNotFound)
