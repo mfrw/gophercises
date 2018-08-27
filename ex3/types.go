@@ -24,12 +24,20 @@ type Option struct {
 	Text    string `json:"text"`
 	Chapter string `json:"arc"`
 }
+type HandlerOption func(h *handler)
 
-func NewHandler(s Story, t *template.Template) http.Handler {
-	if t == nil {
-		t = tmpl
+func WithTemplate(t *template.Template) HandlerOption {
+	return func(h *handler) {
+		h.t = t
 	}
-	return handler{s, t}
+}
+
+func NewHandler(s Story, opts ...HandlerOption) http.Handler {
+	h := handler{s, tmpl}
+	for _, o := range opts {
+		o(&h)
+	}
+	return h
 }
 
 type handler struct {
