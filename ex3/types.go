@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"html/template"
 	"io"
+	"log"
 	"net/http"
+	"strings"
 )
 
 type Story map[string]Chapter
@@ -28,8 +30,20 @@ type handler struct {
 }
 
 func (h handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	tmpl := template.Must(template.New("").Parse(htmlTemplate))
-	_ = tmpl.Execute(w, h.s["intro"])
+	path := strings.TrimSpace(r.URL.Path)
+	if path == "" || path == "/" {
+		path = "/intro"
+	}
+	path = path[1:] // Trime the leading /
+
+	if chapter, ok := h.s[path]; ok {
+		tmpl := template.Must(template.New("").Parse(htmlTemplate))
+		err := tmpl.Execute(w, chapter)
+		if err != nil {
+			log.Printf("%v", err)
+			http.Error(w, "Something went wrong ..", http.StatusNotFound)
+		}
+	}
 }
 
 func JsonStory(r io.Reader) (Story, error) {
