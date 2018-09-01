@@ -39,3 +39,10 @@ func TestJokers(t *testing.T) {
 		t.Error("Incorrect number of Jokers")
 	}
 }
+
+func TestDeck(t *testing.T) {
+	cards := New(Deck(3))
+	if len(cards) != 13*4*3 {
+		t.Errorf("Expected %d cards, got %d cards", 13*4*3, len(cards))
+	}
+}
