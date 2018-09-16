@@ -18,8 +18,11 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-
-		n, err := io.Copy(os.Stderr, conn)
-		log.Printf("Copied %d bytes; finished with err = %v\n", n, err)
+		go copyToStderr(conn)
 	}
+}
+
+func copyToStderr(conn net.Conn) {
+	n, err := io.Copy(os.Stderr, conn)
+	log.Printf("Copied %d bytes; finished with err = %v\n", n, err)
 }
