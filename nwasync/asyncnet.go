@@ -1,6 +1,9 @@
 package main
 
 import (
+	"bytes"
+	"encoding/binary"
+	"io"
 	"log"
 	"net"
 	"os"
@@ -18,8 +21,38 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		go copyToStderr(conn)
+		go proxy(conn)
 	}
+}
+
+func logSNI(conn net.Conn) {
+	defer conn.Close()
+	conn.SetReadDeadline(time.Now().Add(30 * time.Second))
+
+	var buf bytes.Buffer
+
+	if _, err := io.CopyN(&buf, conn, 1+2+20); err != nil {
+		log.Println(err)
+	}
+
+	length := binary.BigEndian.Uint16(buf.Bytes()[3:5])
+	if _, err := io.CopyN(&buf, conn, int64(lenght)); err != nil {
+		log.Println(err)
+		return
+	}
+}
+
+func proxy(conn net.Conn) {
+	defer conn.Close()
+
+	remote, err := net.Dial("tcp", "gophercon.com:443")
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	defer remote.Close()
+	go io.Copy(remote, conn)
+	io.Copy(conn, remote)
 }
 
 func copyToStderr(conn net.Conn) {
