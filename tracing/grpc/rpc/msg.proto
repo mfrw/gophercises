@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package rpc;
+
+message Payload {
+	int32 id = 1;
+	bytes data = 2;
+}
+
+message Request {
+	int32 id = 1;
+	bytes data = 2;
+}
+
+service Fetch {
+	rpc Captilize(Request) returns (Payload) {}
+}
