@@ -1,0 +1,34 @@
+syntax = "proto3";
+package customer;
+
+service Customer {
+	// Get all customer with filter - A serer-to-client steaming RPC
+	rpc GetCustomers(CustomerFilter) returns (stream CustomerRequest) {}
+	// Create a new Customer - A Simple RCP
+	rpc CreateCustomer(CustomerRequest) returns (stream CustomerResponse) {}
+}
+
+message CustomerRequest {
+	int32 id = 1;
+	string name = 2;
+	string email = 3;
+	string phone = 4;
+
+	message Address {
+		string street = 1;
+		string city = 2;
+		string state = 3;
+		string zip = 4;
+		bool isShippingAddress = 5;
+	}
+	repeated Address addresses = 5;
+}
+
+message CustomerResponse {
+	int32 id = 1;
+	bool success = 2;
+}
+
+message CustomerFilter {
+	string keyword = 1;
+}
