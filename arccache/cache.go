@@ -11,21 +11,22 @@ func inti() {
 	prometheus.MustRegister(op)
 }
 
-var op = prometheus.NewHistogram(prometheus.HistogramOpts{
+var op = prometheus.NewHistogramVec(prometheus.HistogramOpts{
 	Name:    "operation_duration",
 	Help:    "Operation latency in ms",
 	Buckets: prometheus.LinearBuckets(.000000005, .000000005, 20),
-})
+}, []string{"operation"})
 
-func observeLatency(op string, s time.Time) {
+func observeLatency(operation string, s time.Time) {
 	e := time.Since(s)
-	op.WithLableValues(op).Observe(s.Milisecond())
+	op.WithLabelValues(operation).Observe(e.Seconds())
 }
 
 type Cache struct {
 	c *lru.Cache
 }
 
+// New returns a cache with size capacity
 func New(size int) (*Cache, error) {
 	c, err := lru.NewWithEvict(size, nil)
 	return &Cache{c}, err
