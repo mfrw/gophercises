@@ -42,10 +42,10 @@ func main() {
 			w.Header().Set("Content-Type", "image/png")
 		default:
 			http.Error(w, fmt.Sprintf("Invalid image type %s", ext), http.StatusBadRequest)
-
 		}
 		io.Copy(w, out)
 	})
+	mux.Handle("/img/", httpStripPrefix("/img", http.FileServer(http.Dir("./img/"))))
 
 	log.Fatal(http.ListenAndServe(":8080", mux))
 }
