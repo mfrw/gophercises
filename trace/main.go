@@ -2,12 +2,35 @@ package main
 
 import (
 	"context"
+	"fmt"
+	"log"
+	"net/http"
+	_ "net/http/pprof"
+	"os"
 	"runtime/trace"
+	"strconv"
+	"sync/atomic"
 	"time"
 )
 
+var orders uint64
+
 func main() {
-	Cappuccino("17")
+	http.HandleFunc("/coffee", makeCupa)
+	go func() {
+		log.Fatal(http.ListenAndServe(":8080", nil))
+	}()
+	var str string
+	fmt.Print("Press Return to exit:")
+	fmt.Fscanf(os.Stdin, "%s", &str)
+}
+
+func makeCupa(w http.ResponseWriter, r *http.Request) {
+	current_order := atomic.AddUint64(&orders, 1)
+	cos := strconv.FormatUint(current_order, 10)
+	Cappuccino(cos)
+	w.Header().Set("content-type", "text/plain")
+	w.Write([]byte(cos))
 }
 
 func Cappuccino(orderID string) {
