@@ -26,3 +26,7 @@ func MakeHelloEndpoint(s service.Service) endpoint.Endpoint {
 type Endpoints struct {
 	Hello endpoint.Endpoint
 }
+
+func (r HelloResponse) Failed() error {
+	return r.Err
+}
