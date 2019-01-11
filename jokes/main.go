@@ -7,6 +7,7 @@ import (
 	"html"
 	"io"
 	"io/ioutil"
+	"math/rand"
 	"net/http"
 	"net/http/cookiejar"
 	"sync"
@@ -90,12 +91,19 @@ var requestDuration = prometheus.NewHistogramVec(prometheus.HistogramOpts{
 	Buckets: []float64{0.1, 0.2, 0.21, 0.22, 0.23, 0.24, 0.25, 0.26, 0.27, 0.28, 0.29, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0},
 }, []string{"code", "method"})
 
+var handlerCnt = prometheus.NewCounter(prometheus.CounterOpts{
+	Name: "joke_handler_counter",
+	Help: "Total nr times joke handler is called",
+})
+
 func init() {
 	prometheus.MustRegister(promInst)
 	prometheus.MustRegister(requestDuration)
+	prometheus.MustRegister(handlerCnt)
 }
 
 func jokeHandler(w http.ResponseWriter, r *http.Request) {
+	handlerCnt.Inc()
 	promInst.Inc()
 	defer promInst.Dec()
 
@@ -109,10 +117,27 @@ func jokeHandler(w http.ResponseWriter, r *http.Request) {
 	io.Copy(w, br)
 }
 
+func fib(n int) int {
+	if n < 2 {
+		return n
+	}
+	return fib(n-1) + fib(n-2)
+}
+func testHandler(w http.ResponseWriter, r *http.Request) {
+	handlerCnt.Inc()
+	promInst.Inc()
+	defer promInst.Dec()
+	random := rand.Int31n(35)
+	fib(int(random))
+
+}
+
 func main() {
 	jokeHandlerInst := promhttp.InstrumentHandlerDuration(requestDuration, http.HandlerFunc(jokeHandler))
+	jokeHandlerInstTest := promhttp.InstrumentHandlerDuration(requestDuration, http.HandlerFunc(testHandler))
 
 	http.HandleFunc("/random", jokeHandlerInst)
+	http.HandleFunc("/testing", jokeHandlerInstTest)
 	http.Handle("/metrics", promhttp.Handler())
 	http.ListenAndServe(":8080", nil)
 }
