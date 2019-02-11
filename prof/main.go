@@ -13,6 +13,8 @@ var visitors struct {
 	n int
 }
 
+var colorRegexp = regexp.MustCompile(`^\w*$`)
+
 func main() {
 	log.Printf("Starting on port 8080")
 	http.HandleFunc("/hi", handleHi)
@@ -20,7 +22,7 @@ func main() {
 }
 
 func handleHi(w http.ResponseWriter, r *http.Request) {
-	if match, _ := regexp.MatchString(`^\w*$`, r.FormValue("color")); !match {
+	if match := colorRegexp.MatchString(r.FormValue("color")); !match {
 		http.Error(w, "Optional color is invalid", http.StatusBadRequest)
 		return
 	}
