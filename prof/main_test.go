@@ -39,7 +39,7 @@ func TestHandleHi_Server(t *testing.T) {
 				t.Error(err)
 				return
 			}
-			if g, w := res.Header.Get("Content-Type"), "text/html; charset-utf-8"; g != w {
+			if g, w := res.Header.Get("Content-Type"), "text/html; charset=utf-8"; g != w {
 				t.Errorf("Content-Type = %q; want %q", g, w)
 			}
 			defer res.Body.Close()
@@ -51,6 +51,7 @@ func TestHandleHi_Server(t *testing.T) {
 	wg.Wait()
 }
 func BenchmarkHandleHi(b *testing.B) {
+	b.ReportAllocs()
 	r := req(b, "GET / HTTP/1.0\r\n\r\n")
 	for i := 0; i < b.N; i++ {
 		rw := httptest.NewRecorder()

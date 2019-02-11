@@ -30,7 +30,7 @@ func handleHi(w http.ResponseWriter, r *http.Request) {
 	visitors.n++
 	vistNum := visitors.n
 	visitors.Unlock()
-	w.Header().Set("Content-Type", "text/html; charset-utf-8")
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	w.Write([]byte("<h1 style='color: " + r.FormValue("color") +
 		"'>Welcome!</h1>You are visitor number " + fmt.Sprint(vistNum) + "!"))
 }
