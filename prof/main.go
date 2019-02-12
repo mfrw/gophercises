@@ -1,10 +1,11 @@
 package main
 
 import (
-	"fmt"
+	"bytes"
 	"log"
 	"net/http"
 	"regexp"
+	"strconv"
 	"sync"
 )
 
@@ -30,7 +31,20 @@ func handleHi(w http.ResponseWriter, r *http.Request) {
 	visitors.n++
 	vistNum := visitors.n
 	visitors.Unlock()
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	w.Write([]byte("<h1 style='color: " + r.FormValue("color") +
-		"'>Welcome!</h1>You are visitor number " + fmt.Sprint(vistNum) + "!"))
+	//fmt.Fprintf(w, "<h1 style='color: %s'>Welcome!</h1>You are visitor number %v!", r.FormValue("color"), vistNum)
+	buf := bufPool.Get().(*bytes.Buffer)
+	defer bufPool.Put(buf)
+	buf.Reset()
+	buf.WriteString("<h1 style='color: ")
+	buf.WriteString(r.FormValue("color"))
+	buf.WriteString("'> Welcome!</h1> You are visitor number ")
+	b := strconv.AppendInt(buf.Bytes(), int64(vistNum), 10)
+	b = append(b, '!')
+	w.Write(b)
+}
+
+var bufPool = sync.Pool{
+	New: func() interface{} {
+		return new(bytes.Buffer)
+	},
 }

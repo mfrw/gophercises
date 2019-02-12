@@ -53,8 +53,22 @@ func TestHandleHi_Server(t *testing.T) {
 func BenchmarkHandleHi(b *testing.B) {
 	b.ReportAllocs()
 	r := req(b, "GET / HTTP/1.0\r\n\r\n")
+	rw := httptest.NewRecorder()
 	for i := 0; i < b.N; i++ {
-		rw := httptest.NewRecorder()
 		handleHi(rw, r)
+		reset(rw)
+	}
+}
+
+func reset(rw *httptest.ResponseRecorder) {
+	m := rw.HeaderMap
+	for k := range m {
+		delete(m, k)
+	}
+	body := rw.Body
+	body.Reset()
+	*rw = httptest.ResponseRecorder{
+		Body:      body,
+		HeaderMap: m,
 	}
 }
