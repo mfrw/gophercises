@@ -40,6 +40,17 @@ struct entry *slurp_input(int len) {
 	return head;
 }
 
+void free_input(struct entry *head) {
+	if (!head) return;
+	struct entry *it = head;
+	while (it) {
+		head = head->next;
+		free(it->str);
+		free(it);
+		it = head;
+	}
+}
+
 int main(int argc, char *argv[]) {
 	int tclen;
 	scanf("%d", &tclen);
@@ -65,4 +76,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	printf("%s\n", ans);
+
+	free(query);
+	free_input(head);
 }
