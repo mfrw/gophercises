@@ -1,16 +1,16 @@
 package main
 
 func Search(n int, s []int) int {
-	r := len(s)
+	r := len(s) - 1
 	l := 0
 	for l <= r {
 		m := l + (r-l)/2
 		if s[m] == n {
 			return m
 		} else if s[m] < n {
-			r = m - 1
-		} else {
 			l = m + 1
+		} else {
+			r = m - 1
 		}
 	}
 	return -1
