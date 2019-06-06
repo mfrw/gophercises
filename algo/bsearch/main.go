@@ -30,7 +30,7 @@ func binary(n int, s []int) int {
 	if l < 0 {
 		return -1
 	}
-	return r - l
+	return r - l + 1
 }
 
 func CountIntLinear(n int, s []int) int {
