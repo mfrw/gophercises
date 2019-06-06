@@ -3,10 +3,8 @@ package main
 import (
 	"encoding/json"
 	"log"
-	"math/rand"
 	"net/http"
 	"sync"
-	"time"
 )
 
 type PlacementReq struct {
@@ -22,6 +20,28 @@ type PlacementRes struct {
 var reqPool sync.Pool
 var resPool sync.Pool
 
+func placementHandlerNoPool(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	preq := &PlacementReq{}
+	err := json.NewDecoder(r.Body).Decode(preq)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	// do something randomly for (3 + r)ms
+	//duration := time.Duration(rand.Intn(10)+3) * time.Millisecond
+	//time.Sleep(duration)
+	//log.Printf("Serving: %s\n", preq.RequestID)
+	pres := &PlacementRes{}
+	pres.ReqHandled = true
+	pres.RequestID = preq.RequestID
+	err = json.NewEncoder(w).Encode(pres)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+
 func placementHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	preq, ok := reqPool.Get().(*PlacementReq)
@@ -35,9 +55,9 @@ func placementHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// do something randomly for (3 + r)ms
-	duration := time.Duration(rand.Intn(10)+3) * time.Millisecond
-	time.Sleep(duration)
-	log.Printf("Serving: %s\n", preq.RequestID)
+	//duration := time.Duration(rand.Intn(10)+3) * time.Millisecond
+	//time.Sleep(duration)
+	//log.Printf("Serving: %s\n", preq.RequestID)
 	pres, ok := resPool.Get().(*PlacementRes)
 	if !ok {
 		pres = &PlacementRes{}
@@ -53,7 +73,8 @@ func placementHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	http.HandleFunc("/placementno", placementHandlerNoPool)
 	http.HandleFunc("/placement", placementHandler)
-	log.Println("Serving '/placement' on :1771")
+	log.Println("Serving '/placement{,no}' on :1771")
 	log.Fatal(http.ListenAndServe(":1771", nil))
 }
