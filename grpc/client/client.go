@@ -9,8 +9,8 @@ import (
 	"time"
 
 	pb "github.com/mfrw/gophercises/grpc/routeguide"
-	grpc "grpc.go4.org"
-	"grpc.go4.org/credentials"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 )
 
 var (
@@ -78,7 +78,7 @@ func runRecordRoute(client pb.RouteGuideClient) {
 }
 
 func runRouteChat(client pb.RouteGuideClient) {
-	notes := []*pb.RouteNotes{
+	notes := []*pb.RouteNote{
 		{Location: &pb.Point{Latitude: 0, Longitute: 1}, Message: "First message"},
 		{Location: &pb.Point{Latitude: 0, Longitute: 2}, Message: "Second message"},
 		{Location: &pb.Point{Latitude: 0, Longitute: 3}, Message: "Third message"},
@@ -149,7 +149,7 @@ func main() {
 
 	printFeatures(client, &pb.Rectangle{
 		Lo: &pb.Point{Latitude: 400000000, Longitute: -750000000},
-		Hi: &pb.Point{Latitude: 420000000, Longitude: -730000000},
+		Hi: &pb.Point{Latitude: 420000000, Longitute: -730000000},
 	})
 
 	runRecordRoute(client)

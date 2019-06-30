@@ -15,9 +15,9 @@ import (
 
 	"github.com/gogo/protobuf/proto"
 	pb "github.com/mfrw/gophercises/grpc/routeguide"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/testdata"
-	grpc "grpc.go4.org"
-	"grpc.go4.org/credentials"
 )
 
 var (
