@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"time"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -18,6 +19,9 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	config.AcceptContentTypes = "application/vnd.kubernetes.protobuf,application/json"
+	config.ContentType = "application/vnd.kubernetes.protobuf"
+	config.Timeout = time.Second * 30
 
 	clientset, err := kubernetes.NewForConfig(config)
 	if err != nil {
