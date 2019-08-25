@@ -24,9 +24,12 @@ func main() {
 		log.Fatal(err)
 	}
 
-	pod, err := clientset.CoreV1().Pods("default").Get("alpine-68b864bffd-p76hm", metav1.GetOptions{})
+	pod, err := clientset.CoreV1().Pods("default").List(metav1.ListOptions{})
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println(pod.GetName())
+
+	for _, p := range pod.Items {
+		fmt.Println(p.GetName())
+	}
 }
